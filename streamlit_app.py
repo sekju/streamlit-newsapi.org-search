@@ -4,11 +4,16 @@ import pandas as pd
 from datetime import datetime
 
 def search_articles(api_key, query, start_date, end_date, num_links):
-    url = f'https://newsapi.org/v2/everything?q={query}&from={start_date}&to={end_date}&sortBy=publishedAt&pageSize={num_links}&apiKey={api_key}'
-    response = requests.get(url)
-    articles = response.json().get('articles', [])
-    results = [{"title": article['title'], "link": article['url']} for article in articles]
-    return results
+    try:
+        url = f'https://newsapi.org/v2/everything?q={query}&from={start_date}&to={end_date}&sortBy=publishedAt&pageSize={num_links}&apiKey={api_key}'
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an error for bad status codes
+        articles = response.json().get('articles', [])
+        results = [{"title": article['title'], "link": article['url']} for article in articles]
+        return results
+    except Exception as e:
+        st.error(f"Błąd przy przetwarzaniu: {e}")
+        return []
 
 st.title("Wyszukiwarka Artykułów")
 
