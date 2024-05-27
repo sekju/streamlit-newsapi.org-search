@@ -3,9 +3,6 @@ import requests
 import pandas as pd
 from datetime import datetime
 
-# Wtyczka do obsługi local storage
-from streamlit_localstorage import localStorage
-
 def search_articles(api_key, query, start_date, end_date, num_links):
     url = f'https://newsapi.org/v2/everything?q={query}&from={start_date}&to={end_date}&sortBy=publishedAt&pageSize={num_links}&apiKey={api_key}'
     response = requests.get(url)
@@ -16,17 +13,14 @@ def search_articles(api_key, query, start_date, end_date, num_links):
 st.title("Wyszukiwarka Artykułów")
 
 # API Key input
-api_key = st.text_input("Podaj swój klucz API NewsAPI", type="password")
+if 'api_key' not in st.session_state:
+    st.session_state.api_key = ''
 
-# Save and load API Key from local storage
+api_key = st.text_input("Podaj swój klucz API NewsAPI", value=st.session_state.api_key, type="password")
+
 if st.button("Zapisz klucz API"):
-    localStorage.set_item("news_api_key", api_key)
+    st.session_state.api_key = api_key
     st.success("Klucz API został zapisany!")
-
-saved_api_key = localStorage.get_item("news_api_key")
-if saved_api_key:
-    api_key = saved_api_key
-    st.info("Używam zapisanego klucza API.")
 
 query = st.text_input("Temat wyszukiwania")
 num_links = st.slider("Liczba linków", min_value=1, max_value=50, value=20)
